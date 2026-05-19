@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM Realtime Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>CRM Realtime Dashboard</h1>
+      <p>Kiểm soát lead theo trạng thái liên hệ và chăm sóc</p>
+    </div>
+    <div class="meta">
+      <span id="lastUpdated">Chưa cập nhật</span>
+      <button id="refreshBtn">Làm mới</button>
+    </div>
+  </header>
+
+  <section class="controls">
+    <label>
+      Leader
+      <select id="leaderFilter"><option value="">Tất cả</option></select>
+    </label>
+    <label>
+      PIC
+      <select id="picFilter"><option value="">Tất cả</option></select>
+    </label>
+    <label>
+      Ngành học
+      <select id="majorFilter"><option value="">Tất cả</option></select>
+    </label>
+    <label>
+      Hệ đào tạo
+      <select id="programFilter"><option value="">Tất cả</option></select>
+    </label>
+  </section>
+
+  <section class="kpis" id="kpiCards"></section>
+
+  <section class="grid">
+    <article class="card">
+      <h2>Tình trạng liên hệ</h2>
+      <canvas id="statusChart"></canvas>
+    </article>
+    <article class="card">
+      <h2>Tiến độ chăm sóc</h2>
+      <canvas id="careChart"></canvas>
+    </article>
+    <article class="card">
+      <h2>Top Leader Theo Hiệu Suất</h2>
+      <div class="rank-wrap">
+        <table id="leaderRankTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card">
+      <h2>Top PIC Theo Hiệu Suất</h2>
+      <div class="rank-wrap">
+        <table id="picRankTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card wide alert-card">
+      <h2>Cảnh báo quá hạn chăm sóc (>24h chưa gọi)</h2>
+      <div class="table-wrap">
+        <table id="overdueTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card table-card wide">
+      <h2>Danh sách lead</h2>
+      <div class="table-wrap">
+        <table id="leadTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+    <article class="card table-card wide">
+      <h2>Thống kê Lead Theo Ngành (Theo Ngày)</h2>
+      <div class="table-wrap">
+        <table id="majorStatsTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+  <script src="./app.js"></script>
+</body>
+</html>
