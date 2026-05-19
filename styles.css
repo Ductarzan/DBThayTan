@@ -21,7 +21,7 @@ body {
 }
 
 .topbar {
-  padding: 20px 24px;
+  padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,7 +44,7 @@ button {
 }
 
 .controls {
-  margin: 0 24px 12px;
+  margin: 0 20px 10px;
   display: grid;
   grid-template-columns: repeat(4, minmax(180px, 1fr));
   gap: 12px;
@@ -61,7 +61,7 @@ select {
 }
 
 .kpis {
-  margin: 0 24px;
+  margin: 0 20px;
   display: grid;
   grid-template-columns: repeat(4, minmax(180px, 1fr));
   gap: 12px;
@@ -72,31 +72,33 @@ select {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 14px;
-  min-height: 104px;
+  padding: 12px;
+  min-height: 92px;
 }
 
 .kpi h3 { margin: 0; font-size: 13px; color: var(--muted); font-weight: 600; }
-.kpi .value { margin-top: 8px; font-size: 28px; font-weight: 800; }
+.kpi .value { margin-top: 6px; font-size: 24px; font-weight: 800; }
 .kpi .sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
 .kpi.compare { grid-column: 1 / -1; min-height: auto; }
 
 .grid {
-  margin: 12px 24px 24px;
+  margin: 10px 20px 20px;
   display: grid;
   grid-template-columns: repeat(2, minmax(280px, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 14px;
+  padding: 12px;
 }
 
 .card h2 { margin: 0 0 10px; font-size: 16px; }
 .wide { grid-column: 1 / -1; }
+.grid .card:not(.wide) { min-height: 340px; }
+.grid .card canvas { width: 100% !important; height: 260px !important; }
 
 .table-wrap { overflow: auto; max-height: 420px; border: 1px solid var(--line); border-radius: 10px; }
 table { width: 100%; border-collapse: collapse; min-width: 900px; }

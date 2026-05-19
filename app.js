@@ -233,6 +233,7 @@ function renderStatusChart(rows) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
     }
@@ -256,6 +257,8 @@ function renderCareChart(rows) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
+      cutout: "58%",
       plugins: { legend: { position: "bottom" } }
     }
   });
