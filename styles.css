@@ -18,6 +18,7 @@ body {
               radial-gradient(circle at 90% 10%, #fff3d8 0%, transparent 30%),
               var(--bg);
   color: var(--ink);
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -49,6 +50,7 @@ button {
   grid-template-columns: repeat(4, minmax(180px, 1fr));
   gap: 12px;
 }
+.controls > * { min-width: 0; }
 
 label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
 
@@ -67,6 +69,7 @@ select {
   gap: 12px;
   align-items: stretch;
 }
+.kpis > * { min-width: 0; }
 
 .kpi {
   background: var(--panel);
@@ -77,7 +80,7 @@ select {
 }
 
 .kpi h3 { margin: 0; font-size: 13px; color: var(--muted); font-weight: 600; }
-.kpi .value { margin-top: 6px; font-size: 24px; font-weight: 800; }
+.kpi .value { margin-top: 6px; font-size: 24px; font-weight: 800; line-height: 1.15; word-break: break-word; }
 .kpi .sub { margin-top: 4px; font-size: 12px; color: var(--muted); }
 .kpi.compare { grid-column: 1 / -1; min-height: auto; }
 
@@ -87,6 +90,7 @@ select {
   grid-template-columns: repeat(2, minmax(280px, 1fr));
   gap: 10px;
 }
+.grid > * { min-width: 0; }
 
 .card {
   background: var(--panel);
@@ -94,6 +98,7 @@ select {
   border-radius: 14px;
   padding: 12px;
 }
+.card h2, .kpi h3, .kpi .sub { overflow-wrap: anywhere; }
 
 .card h2 { margin: 0 0 10px; font-size: 16px; }
 .wide { grid-column: 1 / -1; }
@@ -102,12 +107,22 @@ select {
 
 .table-wrap { overflow: auto; max-height: 420px; border: 1px solid var(--line); border-radius: 10px; }
 table { width: 100%; border-collapse: collapse; min-width: 900px; }
-th, td { padding: 10px; border-bottom: 1px solid var(--line); font-size: 13px; text-align: left; white-space: nowrap; }
+th, td { padding: 10px; border-bottom: 1px solid var(--line); font-size: 13px; text-align: left; white-space: normal; }
 th { position: sticky; top: 0; background: #f8fafc; z-index: 1; }
 .rank-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
 .rank-wrap table { min-width: 100%; }
 .rank-wrap th, .rank-wrap td { white-space: normal; }
 .alert-card .table-wrap { max-height: 300px; }
+
+#leadTable { min-width: 900px; }
+#overdueTable, #majorStatsTable, #leaderRankTable, #picRankTable { min-width: 100%; }
+#overdueTable th, #overdueTable td,
+#majorStatsTable th, #majorStatsTable td,
+#leaderRankTable th, #leaderRankTable td,
+#picRankTable th, #picRankTable td {
+  white-space: normal;
+  word-break: break-word;
+}
 
 .badge { display: inline-block; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .badge.ok { background: var(--brand-soft); color: var(--brand); }
@@ -119,9 +134,50 @@ th { position: sticky; top: 0; background: #f8fafc; z-index: 1; }
   .controls, .kpis { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
   .kpi.compare { grid-column: 1 / -1; }
   .grid { grid-template-columns: 1fr; }
+  .grid .card:not(.wide) { min-height: 300px; }
+  .grid .card canvas { height: 220px !important; }
 }
 
 @media (max-width: 620px) {
-  .topbar { flex-direction: column; align-items: flex-start; }
+  body { font-size: 14px; }
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 12px 8px;
+    gap: 8px;
+  }
+  .topbar h1 { font-size: 20px; }
+  .topbar p { font-size: 13px; margin-top: 2px; }
+  .meta { width: 100%; justify-content: space-between; font-size: 12px; }
+  button { padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+
+  .controls, .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .controls { margin: 0 10px 6px; gap: 6px; }
+  .kpis { margin: 0 10px; gap: 6px; }
+  label { font-size: 13px; }
+  select { padding: 7px 8px; border-radius: 8px; }
+
+  .kpi { padding: 9px; min-height: 84px; }
+  .kpi h3 { font-size: 12px; }
+  .kpi .value { font-size: 20px; margin-top: 3px; }
+  .kpi .sub { font-size: 11px; }
+  .kpi.compare { grid-column: 1 / -1; min-height: auto; }
+
+  .grid { margin: 8px 10px 12px; gap: 8px; }
+  .card { padding: 10px; border-radius: 12px; }
+  .card h2 { font-size: 14px; margin-bottom: 8px; }
+  .grid .card:not(.wide) { min-height: 250px; }
+  .grid .card canvas { height: 180px !important; }
+
+  .table-wrap { max-height: 300px; border-radius: 8px; }
+  table { min-width: 100%; }
+  #leadTable { min-width: 720px; }
+  th, td { padding: 8px; font-size: 12px; }
+}
+
+@media (max-width: 380px) {
+  .topbar h1 { font-size: 18px; }
   .controls, .kpis { grid-template-columns: 1fr; }
+  .kpi .value { font-size: 20px; }
+  .card h2 { font-size: 13px; }
 }

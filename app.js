@@ -398,6 +398,7 @@ function isRegularProgram(v) {
 
 function renderMajorStatsTable(rows) {
   const agg = new Map();
+  const majorAllTime = new Map();
 
   for (const r of rows) {
     const d = formatDateKey(parseDateSafe(r[fields.createdTime]));
@@ -411,6 +412,14 @@ function renderMajorStatsTable(rows) {
     if (isRegularProgram(r[fields.program])) item.regular += 1;
     else item.nonRegular += 1;
     item.total += 1;
+
+    if (!majorAllTime.has(major)) {
+      majorAllTime.set(major, { major, regular: 0, nonRegular: 0, total: 0 });
+    }
+    const mt = majorAllTime.get(major);
+    if (isRegularProgram(r[fields.program])) mt.regular += 1;
+    else mt.nonRegular += 1;
+    mt.total += 1;
   }
 
   const list = [...agg.values()].sort((a, b) => {
@@ -421,6 +430,7 @@ function renderMajorStatsTable(rows) {
   const sumRegular = list.reduce((s, x) => s + x.regular, 0);
   const sumNonRegular = list.reduce((s, x) => s + x.nonRegular, 0);
   const sumTotal = list.reduce((s, x) => s + x.total, 0);
+  const allTimeByMajor = [...majorAllTime.values()].sort((a, b) => b.total - a.total || a.major.localeCompare(b.major, "vi"));
 
   els.majorStatsHead.innerHTML = "<tr><th>Ngày</th><th>Ngành</th><th>Đại học chính quy</th><th>Ngoài chính quy</th><th>Tổng</th></tr>";
   els.majorStatsBody.innerHTML = list.map((x) => `
@@ -441,6 +451,23 @@ function renderMajorStatsTable(rows) {
       <td><strong>${sumTotal}</strong></td>
     </tr>
   `;
+
+  if (allTimeByMajor.length) {
+    els.majorStatsBody.innerHTML += `
+      <tr>
+        <td colspan="5"><strong>Tổng toàn thời gian theo ngành</strong></td>
+      </tr>
+    `;
+    els.majorStatsBody.innerHTML += allTimeByMajor.map((x) => `
+      <tr>
+        <td>Toàn thời gian</td>
+        <td>${escapeHtml(x.major)}</td>
+        <td>${x.regular}</td>
+        <td>${x.nonRegular}</td>
+        <td>${x.total}</td>
+      </tr>
+    `).join("");
+  }
 
   if (!list.length) {
     els.majorStatsBody.innerHTML = "<tr><td colspan=\"5\">Không có dữ liệu thống kê ngành.</td></tr>";
