@@ -1,8 +1,16 @@
-const SHEET_ID = "1NgLuWiU3zzmTX3aKpykD7rqj2-x5x1nD1FyQlZUTE2U";
-const GID = "1810436556";
 const AUTO_REFRESH_MS = 30000;
-
-const sheetCsvUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+const SOURCES = {
+  dongdo: {
+    label: "ĐH Đông Đô",
+    sheetId: "1NgLuWiU3zzmTX3aKpykD7rqj2-x5x1nD1FyQlZUTE2U",
+    gid: "1810436556"
+  },
+  bachnghe: {
+    label: "CĐ Bách Nghệ",
+    sheetId: "13p-bxCn4bhO9TBcT0pssfeIENUF-tPYZNkMFba1EffM",
+    gid: "1644038176"
+  }
+};
 
 const fields = {
   name: "Tên",
@@ -55,12 +63,15 @@ const MAJOR_RULES = [
 ];
 
 let rawRows = [];
+let rowsBySource = { dongdo: [], bachnghe: [] };
+let activeSource = "dongdo";
 let statusChart;
 let careChart;
 
 const els = {
   refreshBtn: document.getElementById("refreshBtn"),
   lastUpdated: document.getElementById("lastUpdated"),
+  campusSwitch: document.getElementById("campusSwitch"),
   leaderFilter: document.getElementById("leaderFilter"),
   picFilter: document.getElementById("picFilter"),
   majorFilter: document.getElementById("majorFilter"),
@@ -77,6 +88,11 @@ const els = {
   overdueHead: document.querySelector("#overdueTable thead"),
   overdueBody: document.querySelector("#overdueTable tbody")
 };
+
+function getSheetCsvUrl(sourceKey) {
+  const s = SOURCES[sourceKey];
+  return `https://docs.google.com/spreadsheets/d/${s.sheetId}/export?format=csv&gid=${s.gid}`;
+}
 
 function parseCsv(text) {
   const lines = [];
@@ -138,6 +154,34 @@ function setSelectOptions(selectEl, values) {
   const selected = selectEl.value;
   selectEl.innerHTML = '<option value="">Tất cả</option>' + values.map((v) => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join("");
   if (values.includes(selected)) selectEl.value = selected;
+}
+
+function renderCampusCards() {
+  const now = new Date();
+  const todayKey = formatDateKey(now);
+  els.campusSwitch.innerHTML = Object.entries(SOURCES).map(([key, src]) => {
+    const rows = rowsBySource[key] || [];
+    const todayCount = rows.filter((r) => formatDateKey(parseDateSafe(r[fields.createdTime])) === todayKey).length;
+    return `
+      <article class="campus-card ${key === activeSource ? "active" : ""}" data-source="${key}">
+        <h3>${escapeHtml(src.label)}</h3>
+        <p>${rows.length} lead • Hôm nay: ${todayCount}</p>
+      </article>
+    `;
+  }).join("");
+
+  els.campusSwitch.querySelectorAll(".campus-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      activeSource = card.dataset.source;
+      rawRows = rowsBySource[activeSource] || [];
+      setSelectOptions(els.leaderFilter, uniqueValues(rawRows, fields.leader));
+      setSelectOptions(els.picFilter, uniqueValues(rawRows, fields.pic));
+      setSelectOptions(els.majorFilter, uniqueValues(rawRows, fields.major));
+      setSelectOptions(els.programFilter, uniqueValues(rawRows, fields.program));
+      renderCampusCards();
+      refreshAllViews();
+    });
+  });
 }
 
 function getFilteredRows() {
@@ -496,19 +540,24 @@ function refreshAllViews() {
 }
 
 async function loadData() {
-  const res = await fetch(sheetCsvUrl, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Không tải được dữ liệu: ${res.status}`);
-
-  const csv = await res.text();
-  rawRows = parseCsv(csv);
+  const entries = Object.keys(SOURCES);
+  const results = await Promise.all(entries.map(async (key) => {
+    const res = await fetch(getSheetCsvUrl(key), { cache: "no-store" });
+    if (!res.ok) throw new Error(`Không tải được dữ liệu ${SOURCES[key].label}: ${res.status}`);
+    const csv = await res.text();
+    return [key, parseCsv(csv)];
+  }));
+  rowsBySource = Object.fromEntries(results);
+  rawRows = rowsBySource[activeSource] || [];
 
   setSelectOptions(els.leaderFilter, uniqueValues(rawRows, fields.leader));
   setSelectOptions(els.picFilter, uniqueValues(rawRows, fields.pic));
   setSelectOptions(els.majorFilter, uniqueValues(rawRows, fields.major));
   setSelectOptions(els.programFilter, uniqueValues(rawRows, fields.program));
 
+  renderCampusCards();
   refreshAllViews();
-  els.lastUpdated.textContent = `Cập nhật: ${new Date().toLocaleString("vi-VN")}`;
+  els.lastUpdated.textContent = `Cập nhật: ${new Date().toLocaleString("vi-VN")} • ${SOURCES[activeSource].label}`;
 }
 
 async function refresh() {
