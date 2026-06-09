@@ -437,6 +437,7 @@ function renderTable(rows) {
 }
 
 function isRegularProgram(v) {
+  if (activeSource === "bachnghe") return true;
   return (v || "").toLowerCase().includes("đại học chính quy");
 }
 
