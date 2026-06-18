@@ -46,19 +46,37 @@ const MAJOR_RULES = [
   { label: "Luật kinh tế", aliases: ["luật kinh tế"] },
   {
     label: "Công nghệ thông tin",
-    aliases: ["công nghệ thông tin", "trí tuệ nhân tạo ứng dụng", "an toàn hệ thống thông tin"]
+    aliases: ["công nghệ thông tin", "trí tuệ nhân tạo ứng dụng", "an toàn hệ thống thông tin", "lập trình máy tính"]
   },
   {
-    label: "Công nghệ kỹ thuật ô tô",
-    aliases: ["kỹ thuật điện ô tô", "công nghệ ô tô điện", "cơ điện tử ô tô", "công nghệ ô tô số", "công nghệ kỹ thuật ô tô"]
+    label: "Công nghệ ô tô",
+    aliases: [
+      "kỹ thuật điện ô tô",
+      "công nghệ ô tô điện",
+      "cơ điện tử ô tô",
+      "công nghệ ô tô số",
+      "công nghệ kỹ thuật ô tô",
+      "công nghệ ô tô",
+      "o to"
+    ]
   },
   { label: "Thú y", aliases: ["thú y"] },
-  { label: "Dược học", aliases: ["dược học"] },
+  { label: "Dược", aliases: ["dược học", "dược"] },
   { label: "Điều dưỡng", aliases: ["điều dưỡng"] },
   { label: "Kỹ thuật xét nghiệm Y học", aliases: ["kỹ thuật xét nghiệm y học"] },
-  { label: "Ngôn ngữ Trung Quốc", aliases: ["ngôn ngữ trung quốc"] },
-  { label: "Ngôn ngữ Nhật", aliases: ["ngôn ngữ nhật"] },
-  { label: "Ngôn ngữ Hàn Quốc", aliases: ["ngôn ngữ hàn quốc"] },
+  { label: "Tiếng Trung", aliases: ["ngôn ngữ trung quốc", "ngôn ngữ trung", "tiếng trung"] },
+  { label: "Tiếng Nhật", aliases: ["ngôn ngữ nhật", "tiếng nhật"] },
+  { label: "Tiếng Hàn", aliases: ["ngôn ngữ hàn quốc", "ngôn ngữ hàn", "tiếng hàn", "hàn"] },
+  { label: "Tiếng Anh", aliases: ["ngôn ngữ anh", "tiếng anh"] },
+  { label: "Quản trị khách sạn", aliases: ["quản trị khách sạn"] },
+  { label: "Kỹ thuật chế biến món ăn", aliases: ["kỹ thuật chế biến món ăn"] },
+  { label: "Nghiệp vụ nhà hàng", aliases: ["nghiệp vụ nhà hàng"] },
+  { label: "Thiết kế đồ họa", aliases: ["thiết kế đồ họa"] },
+  { label: "Điện công nghiệp", aliases: ["điện công nghiệp"] },
+  { label: "Y sĩ đa khoa", aliases: ["y sĩ đa khoa"] },
+  { label: "Y học cổ truyền", aliases: ["y học cổ truyền"] },
+  { label: "Kỹ thuật pha chế đồ uống", aliases: ["kỹ thuật pha chế đồ uống"] },
+  { label: "Kỹ thuật vật lý trị liệu và PHCN", aliases: ["kỹ thuật vật lý trị liệu và phcn"] },
   { label: "Quản lý nhà nước", aliases: ["quản lý nhà nước"] }
 ];
 
@@ -67,6 +85,10 @@ let rowsBySource = { dongdo: [], bachnghe: [] };
 let activeSource = "dongdo";
 let statusChart;
 let careChart;
+const leadPagination = {
+  page: 1,
+  pageSize: 5
+};
 
 const els = {
   refreshBtn: document.getElementById("refreshBtn"),
@@ -86,7 +108,12 @@ const els = {
   picRankHead: document.querySelector("#picRankTable thead"),
   picRankBody: document.querySelector("#picRankTable tbody"),
   overdueHead: document.querySelector("#overdueTable thead"),
-  overdueBody: document.querySelector("#overdueTable tbody")
+  overdueBody: document.querySelector("#overdueTable tbody"),
+  leadMeta: document.getElementById("leadMeta"),
+  leadPageSize: document.getElementById("leadPageSize"),
+  leadPrevBtn: document.getElementById("leadPrevBtn"),
+  leadNextBtn: document.getElementById("leadNextBtn"),
+  leadPageNumbers: document.getElementById("leadPageNumbers")
 };
 
 function getSheetCsvUrl(sourceKey) {
@@ -147,7 +174,17 @@ function parseCsv(text) {
 }
 
 function uniqueValues(rows, key) {
-  return [...new Set(rows.map((r) => r[key]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+  return [...new Set(rows.map((r) => getMappedValue(r, key)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "vi"));
+}
+
+function getMappedValue(row, key) {
+  if (key === fields.pic) {
+    return row[fields.pic] || row["CTV phụ trách"] || row["CTV"] || "";
+  }
+  if (key === fields.leader) {
+    return row[fields.leader] || row["Leader phụ trách"] || "";
+  }
+  return row[key] || "";
 }
 
 function setSelectOptions(selectEl, values) {
@@ -179,6 +216,7 @@ function renderCampusCards() {
       setSelectOptions(els.majorFilter, uniqueValues(rawRows, fields.major));
       setSelectOptions(els.programFilter, uniqueValues(rawRows, fields.program));
       renderCampusCards();
+      resetLeadPagination();
       refreshAllViews();
     });
   });
@@ -193,12 +231,16 @@ function getFilteredRows() {
   };
 
   return rawRows.filter((r) => {
-    if (f.leader && r[fields.leader] !== f.leader) return false;
-    if (f.pic && r[fields.pic] !== f.pic) return false;
-    if (f.major && r[fields.major] !== f.major) return false;
-    if (f.program && r[fields.program] !== f.program) return false;
+    if (f.leader && getMappedValue(r, fields.leader) !== f.leader) return false;
+    if (f.pic && getMappedValue(r, fields.pic) !== f.pic) return false;
+    if (f.major && getMappedValue(r, fields.major) !== f.major) return false;
+    if (f.program && getMappedValue(r, fields.program) !== f.program) return false;
     return true;
   });
+}
+
+function resetLeadPagination() {
+  leadPagination.page = 1;
 }
 
 function countBy(rows, key) {
@@ -354,7 +396,7 @@ function classifyMajor(rawMajor) {
 
 function buildPerformanceRanks(rows, ownerKey) {
   const map = rows.reduce((acc, r) => {
-    const owner = (r[ownerKey] || "Chưa gán").trim() || "Chưa gán";
+    const owner = (getMappedValue(r, ownerKey) || "Chưa gán").trim() || "Chưa gán";
     if (!acc[owner]) acc[owner] = { owner, total: 0, contacted: 0, cared: 0 };
     acc[owner].total += 1;
     if ((r[fields.status] || "").trim()) acc[owner].contacted += 1;
@@ -406,8 +448,8 @@ function renderOverdueTable(rows) {
   els.overdueBody.innerHTML = overdue.map((x) => `
     <tr>
       <td>${escapeHtml(x.row[fields.name] || "")}</td>
-      <td>${escapeHtml(x.row[fields.leader] || "")}</td>
-      <td>${escapeHtml(x.row[fields.pic] || "")}</td>
+      <td>${escapeHtml(getMappedValue(x.row, fields.leader))}</td>
+      <td>${escapeHtml(getMappedValue(x.row, fields.pic))}</td>
       <td>${escapeHtml(x.row[fields.phone] || "")}</td>
       <td>${escapeHtml(x.row[fields.createdTime] || "")}</td>
       <td><span class="badge danger">${Math.floor(x.hours)}h</span></td>
@@ -418,22 +460,66 @@ function renderOverdueTable(rows) {
   }
 }
 
+function compareByNewest(a, b) {
+  const timeA = parseDateSafe(a[fields.createdTime])?.getTime() || 0;
+  const timeB = parseDateSafe(b[fields.createdTime])?.getTime() || 0;
+  return timeB - timeA;
+}
+
+function getVisiblePageNumbers(page, totalPages) {
+  const maxPages = 5;
+  if (totalPages <= maxPages) return Array.from({ length: totalPages }, (_, idx) => idx + 1);
+  const start = Math.max(1, Math.min(page - 2, totalPages - maxPages + 1));
+  return Array.from({ length: maxPages }, (_, idx) => start + idx);
+}
+
+function renderLeadPagination(totalRows, currentPage, totalPages) {
+  const startIndex = totalRows ? ((currentPage - 1) * leadPagination.pageSize) + 1 : 0;
+  const endIndex = Math.min(currentPage * leadPagination.pageSize, totalRows);
+
+  els.leadMeta.innerHTML = `
+    <span class="data-chip">${totalRows} lead</span>
+    <span class="data-chip">${startIndex}-${endIndex || 0} đang hiển thị</span>
+    <span class="data-chip">Trang ${currentPage}/${Math.max(totalPages, 1)}</span>
+  `;
+
+  els.leadPrevBtn.disabled = currentPage <= 1;
+  els.leadNextBtn.disabled = currentPage >= totalPages;
+
+  const pages = getVisiblePageNumbers(currentPage, totalPages);
+  els.leadPageNumbers.innerHTML = pages.map((page) => `
+    <button type="button" class="page-number ${page === currentPage ? "active" : ""}" data-page="${page}">
+      ${page}
+    </button>
+  `).join("");
+}
+
 function renderTable(rows) {
   const cols = [
     fields.createdTime, fields.name, fields.phone, fields.email,
     fields.major, fields.program, fields.leader, fields.pic,
     fields.status, fields.care1, fields.care2, fields.care3
   ];
+  const sortedRows = [...rows].sort(compareByNewest);
+  const totalPages = Math.max(1, Math.ceil(sortedRows.length / leadPagination.pageSize));
+  if (leadPagination.page > totalPages) leadPagination.page = totalPages;
+  const currentPage = Math.max(1, leadPagination.page);
+  const start = (currentPage - 1) * leadPagination.pageSize;
+  const pagedRows = sortedRows.slice(start, start + leadPagination.pageSize);
 
   els.leadTableHead.innerHTML = `<tr>${cols.map((c) => `<th>${c}</th>`).join("")}</tr>`;
-  els.leadTableBody.innerHTML = rows.map((r) => `
+  els.leadTableBody.innerHTML = pagedRows.map((r) => `
     <tr>
       ${cols.map((c) => {
         if (c === fields.status) return `<td>${badgeStatus(r[c])}</td>`;
-        return `<td>${escapeHtml(r[c] || "")}</td>`;
+        return `<td>${escapeHtml(getMappedValue(r, c))}</td>`;
       }).join("")}
     </tr>
   `).join("");
+  if (!pagedRows.length) {
+    els.leadTableBody.innerHTML = `<tr><td colspan="${cols.length}">Không có lead phù hợp với bộ lọc hiện tại.</td></tr>`;
+  }
+  renderLeadPagination(sortedRows.length, currentPage, totalPages);
 }
 
 function isRegularProgram(v) {
@@ -523,6 +609,7 @@ async function loadData() {
   setSelectOptions(els.programFilter, uniqueValues(rawRows, fields.program));
 
   renderCampusCards();
+  resetLeadPagination();
   refreshAllViews();
   els.lastUpdated.textContent = `Cập nhật: ${new Date().toLocaleString("vi-VN")} • ${SOURCES[activeSource].label}`;
 }
@@ -532,14 +619,47 @@ async function refresh() {
     await loadData();
   } catch (err) {
     console.error(err);
-    els.lastUpdated.textContent = "Lỗi tải dữ liệu. Kiểm tra quyền chia sẻ Google Sheet.";
+    if (window.location.protocol === "file:") {
+      els.lastUpdated.textContent = "Đang mở bằng file:// nên trình duyệt có thể chặn tải dữ liệu. Hãy mở qua http://127.0.0.1:8000/index.html";
+      return;
+    }
+    els.lastUpdated.textContent = "Lỗi tải dữ liệu. Kiểm tra quyền chia sẻ Google Sheet hoặc kết nối mạng.";
   }
 }
 
 [els.leaderFilter, els.picFilter, els.majorFilter, els.programFilter]
-  .forEach((el) => el.addEventListener("change", refreshAllViews));
+  .forEach((el) => el.addEventListener("change", () => {
+    resetLeadPagination();
+    refreshAllViews();
+  }));
+
+els.leadPageSize.addEventListener("change", () => {
+  leadPagination.pageSize = Number(els.leadPageSize.value) || 5;
+  resetLeadPagination();
+  refreshAllViews();
+});
+
+els.leadPrevBtn.addEventListener("click", () => {
+  if (leadPagination.page <= 1) return;
+  leadPagination.page -= 1;
+  refreshAllViews();
+});
+
+els.leadNextBtn.addEventListener("click", () => {
+  leadPagination.page += 1;
+  refreshAllViews();
+});
+
+els.leadPageNumbers.addEventListener("click", (event) => {
+  const btn = event.target.closest("[data-page]");
+  if (!btn) return;
+  leadPagination.page = Number(btn.dataset.page) || 1;
+  refreshAllViews();
+});
 
 els.refreshBtn.addEventListener("click", refresh);
+
+leadPagination.pageSize = Number(els.leadPageSize.value) || 5;
 
 refresh();
 setInterval(refresh, AUTO_REFRESH_MS);

@@ -81,12 +81,35 @@
       </div>
     </article>
     <article class="card table-card wide">
-      <h2>Danh sách lead</h2>
-      <div class="table-wrap">
+      <div class="section-head">
+        <div>
+          <h2>Danh sách lead</h2>
+          <p>Sắp xếp lead mới nhất lên trước, xem theo trang để thao tác nhanh hơn</p>
+        </div>
+        <div class="lead-toolbar">
+          <div class="lead-meta" id="leadMeta"></div>
+          <label class="page-size-control">
+            <span>Dòng / trang</span>
+            <select id="leadPageSize">
+              <option value="5" selected>5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="table-wrap lead-table-wrap">
         <table id="leadTable">
           <thead></thead>
           <tbody></tbody>
         </table>
+      </div>
+      <div class="pagination" id="leadPagination">
+        <button type="button" id="leadPrevBtn">Trang trước</button>
+        <div class="pagination-pages" id="leadPageNumbers"></div>
+        <button type="button" id="leadNextBtn">Trang sau</button>
       </div>
     </article>
     <article class="card table-card wide">
