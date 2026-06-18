@@ -67,8 +67,6 @@ let rowsBySource = { dongdo: [], bachnghe: [] };
 let activeSource = "dongdo";
 let statusChart;
 let careChart;
-let currentLeadPage = 1;
-const LEADS_PER_PAGE = 15;
 
 const els = {
   refreshBtn: document.getElementById("refreshBtn"),
@@ -88,11 +86,7 @@ const els = {
   picRankHead: document.querySelector("#picRankTable thead"),
   picRankBody: document.querySelector("#picRankTable tbody"),
   overdueHead: document.querySelector("#overdueTable thead"),
-  overdueBody: document.querySelector("#overdueTable tbody"),
-  prevPageBtn: document.getElementById("prevPageBtn"),
-  nextPageBtn: document.getElementById("nextPageBtn"),
-  pageInfo: document.getElementById("pageInfo"),
-  leadTableMeta: document.getElementById("leadTableMeta")
+  overdueBody: document.querySelector("#overdueTable tbody")
 };
 
 function getSheetCsvUrl(sourceKey) {
@@ -180,7 +174,6 @@ function renderCampusCards() {
     card.addEventListener("click", () => {
       activeSource = card.dataset.source;
       rawRows = rowsBySource[activeSource] || [];
-      currentLeadPage = 1;
       setSelectOptions(els.leaderFilter, uniqueValues(rawRows, fields.leader));
       setSelectOptions(els.picFilter, uniqueValues(rawRows, fields.pic));
       setSelectOptions(els.majorFilter, uniqueValues(rawRows, fields.major));
@@ -426,25 +419,14 @@ function renderOverdueTable(rows) {
 }
 
 function renderTable(rows) {
-  const sortedRows = [...rows].sort((a, b) => {
-    const aTime = parseDateSafe(a[fields.createdTime])?.getTime() || 0;
-    const bTime = parseDateSafe(b[fields.createdTime])?.getTime() || 0;
-    return bTime - aTime;
-  });
   const cols = [
     fields.createdTime, fields.name, fields.phone, fields.email,
     fields.major, fields.program, fields.leader, fields.pic,
     fields.status, fields.care1, fields.care2, fields.care3
   ];
-  const totalPages = Math.max(1, Math.ceil(sortedRows.length / LEADS_PER_PAGE));
-  currentLeadPage = Math.min(currentLeadPage, totalPages);
-  const startIdx = (currentLeadPage - 1) * LEADS_PER_PAGE;
-  const pageRows = sortedRows.slice(startIdx, startIdx + LEADS_PER_PAGE);
-  const shownFrom = sortedRows.length ? startIdx + 1 : 0;
-  const shownTo = sortedRows.length ? startIdx + pageRows.length : 0;
 
   els.leadTableHead.innerHTML = `<tr>${cols.map((c) => `<th>${c}</th>`).join("")}</tr>`;
-  els.leadTableBody.innerHTML = pageRows.map((r) => `
+  els.leadTableBody.innerHTML = rows.map((r) => `
     <tr>
       ${cols.map((c) => {
         if (c === fields.status) return `<td>${badgeStatus(r[c])}</td>`;
@@ -452,15 +434,6 @@ function renderTable(rows) {
       }).join("")}
     </tr>
   `).join("");
-
-  if (!pageRows.length) {
-    els.leadTableBody.innerHTML = `<tr><td colspan="${cols.length}">Không có lead phù hợp bộ lọc hiện tại.</td></tr>`;
-  }
-
-  els.pageInfo.textContent = `Trang ${currentLeadPage}/${totalPages}`;
-  els.leadTableMeta.textContent = `${shownFrom} - ${shownTo} / ${sortedRows.length}`;
-  els.prevPageBtn.disabled = currentLeadPage <= 1;
-  els.nextPageBtn.disabled = currentLeadPage >= totalPages;
 }
 
 function isRegularProgram(v) {
@@ -564,22 +537,9 @@ async function refresh() {
 }
 
 [els.leaderFilter, els.picFilter, els.majorFilter, els.programFilter]
-  .forEach((el) => el.addEventListener("change", () => {
-    currentLeadPage = 1;
-    refreshAllViews();
-  }));
+  .forEach((el) => el.addEventListener("change", refreshAllViews));
 
 els.refreshBtn.addEventListener("click", refresh);
-els.prevPageBtn.addEventListener("click", () => {
-  if (currentLeadPage > 1) {
-    currentLeadPage -= 1;
-    refreshAllViews();
-  }
-});
-els.nextPageBtn.addEventListener("click", () => {
-  currentLeadPage += 1;
-  refreshAllViews();
-});
 
 refresh();
 setInterval(refresh, AUTO_REFRESH_MS);
