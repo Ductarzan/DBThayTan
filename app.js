@@ -546,28 +546,46 @@ function renderMajorStatsTable(rows) {
   const sumRegular = list.reduce((s, x) => s + x.regular, 0);
   const sumNonRegular = list.reduce((s, x) => s + x.nonRegular, 0);
   const sumTotal = list.reduce((s, x) => s + x.total, 0);
+  const hideNonRegular = activeSource === "bachnghe";
 
-  els.majorStatsHead.innerHTML = "<tr><th>Ngành</th><th>Đại học chính quy</th><th>Ngoài chính quy</th><th>Tổng</th></tr>";
-  els.majorStatsBody.innerHTML = list.map((x) => `
-    <tr>
-      <td>${escapeHtml(x.major)}</td>
-      <td>${x.regular}</td>
-      <td>${x.nonRegular}</td>
-      <td>${x.total}</td>
-    </tr>
-  `).join("");
+  if (hideNonRegular) {
+    els.majorStatsHead.innerHTML = "<tr><th>Ngành</th><th>Tổng</th></tr>";
+    els.majorStatsBody.innerHTML = list.map((x) => `
+      <tr>
+        <td>${escapeHtml(x.major)}</td>
+        <td>${x.total}</td>
+      </tr>
+    `).join("");
 
-  els.majorStatsBody.innerHTML += `
-    <tr>
-      <td><strong>Sum</strong></td>
-      <td><strong>${sumRegular}</strong></td>
-      <td><strong>${sumNonRegular}</strong></td>
-      <td><strong>${sumTotal}</strong></td>
-    </tr>
-  `;
+    els.majorStatsBody.innerHTML += `
+      <tr>
+        <td><strong>Sum</strong></td>
+        <td><strong>${sumTotal}</strong></td>
+      </tr>
+    `;
+  } else {
+    els.majorStatsHead.innerHTML = "<tr><th>Ngành</th><th>Đại học chính quy</th><th>Ngoài chính quy</th><th>Tổng</th></tr>";
+    els.majorStatsBody.innerHTML = list.map((x) => `
+      <tr>
+        <td>${escapeHtml(x.major)}</td>
+        <td>${x.regular}</td>
+        <td>${x.nonRegular}</td>
+        <td>${x.total}</td>
+      </tr>
+    `).join("");
+
+    els.majorStatsBody.innerHTML += `
+      <tr>
+        <td><strong>Sum</strong></td>
+        <td><strong>${sumRegular}</strong></td>
+        <td><strong>${sumNonRegular}</strong></td>
+        <td><strong>${sumTotal}</strong></td>
+      </tr>
+    `;
+  }
 
   if (!list.length) {
-    els.majorStatsBody.innerHTML = "<tr><td colspan=\"4\">Không có dữ liệu thống kê ngành.</td></tr>";
+    els.majorStatsBody.innerHTML = `<tr><td colspan="${hideNonRegular ? 2 : 4}">Không có dữ liệu thống kê ngành.</td></tr>`;
   }
 }
 
