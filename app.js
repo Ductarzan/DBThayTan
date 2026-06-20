@@ -259,10 +259,26 @@ function toNumberSafe(v) {
 
 function parseDateSafe(v) {
   if (!v) return null;
-  const normalized = String(v).trim().replace(" ", "T");
-  const d = new Date(normalized);
-  if (Number.isNaN(d.getTime())) return null;
-  return d;
+  const str = String(v).trim();
+  let d = new Date(str);
+  if (!Number.isNaN(d.getTime())) return d;
+
+  const normalized = str.replace(" ", "T");
+  d = new Date(normalized);
+  if (!Number.isNaN(d.getTime())) return d;
+
+  const parts = str.split(/[\sT]+/);
+  if (parts.length === 2) {
+    const datePart = parts[0];
+    const timePart = parts[1];
+    const timeSubparts = timePart.split(":");
+    if (timeSubparts.length >= 2) {
+      const paddedTime = timeSubparts.map((p) => p.padStart(2, "0")).join(":");
+      d = new Date(`${datePart}T${paddedTime}`);
+      if (!Number.isNaN(d.getTime())) return d;
+    }
+  }
+  return null;
 }
 
 function isCareDone(r) {
