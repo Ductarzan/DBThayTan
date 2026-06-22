@@ -39,7 +39,7 @@ const MAJOR_RULES = [
     aliases: ["quản trị thương mại điện tử", "digital marketing", "logistics và chuỗi cung ứng số", "thương mại quốc tế", "thương mại điện tử"]
   },
   {
-    label: "Tài chính - Ngân hàng",
+    label: "Tài chính ngân hàng",
     aliases: ["tài chính ngân hàng", "tài chính doanh nghiệp", "thanh toán quốc tế", "tài chính - ngân hàng"]
   },
   { label: "Kế toán", aliases: ["kế toán"] },
@@ -49,7 +49,7 @@ const MAJOR_RULES = [
     aliases: ["công nghệ thông tin", "trí tuệ nhân tạo ứng dụng", "an toàn hệ thống thông tin", "lập trình máy tính"]
   },
   {
-    label: "Công nghệ ô tô",
+    label: "Công nghệ kỹ thuật ô tô",
     aliases: [
       "kỹ thuật điện ô tô",
       "công nghệ ô tô điện",
@@ -61,12 +61,12 @@ const MAJOR_RULES = [
     ]
   },
   { label: "Thú y", aliases: ["thú y"] },
-  { label: "Dược", aliases: ["dược học", "dược"] },
+  { label: "Dược học", aliases: ["dược học", "dược"] },
   { label: "Điều dưỡng", aliases: ["điều dưỡng"] },
-  { label: "Kỹ thuật xét nghiệm Y học", aliases: ["kỹ thuật xét nghiệm y học"] },
-  { label: "Tiếng Trung", aliases: ["ngôn ngữ trung quốc", "ngôn ngữ trung", "tiếng trung"] },
-  { label: "Tiếng Nhật", aliases: ["ngôn ngữ nhật", "tiếng nhật"] },
-  { label: "Tiếng Hàn", aliases: ["ngôn ngữ hàn quốc", "ngôn ngữ hàn", "tiếng hàn", "hàn"] },
+  { label: "Kỹ thuật xét nghiệm y học", aliases: ["kỹ thuật xét nghiệm y học"] },
+  { label: "Ngôn ngữ Trung Quốc", aliases: ["ngôn ngữ trung quốc", "ngôn ngữ trung", "tiếng trung"] },
+  { label: "Ngôn ngữ Nhật", aliases: ["ngôn ngữ nhật", "tiếng nhật"] },
+  { label: "Ngôn ngữ Hàn Quốc", aliases: ["ngôn ngữ hàn quốc", "ngôn ngữ hàn", "tiếng hàn", "hàn"] },
   { label: "Tiếng Anh", aliases: ["ngôn ngữ anh", "tiếng anh"] },
   { label: "Quản trị khách sạn", aliases: ["quản trị khách sạn"] },
   { label: "Kỹ thuật chế biến món ăn", aliases: ["kỹ thuật chế biến món ăn"] },
@@ -77,6 +77,8 @@ const MAJOR_RULES = [
   { label: "Y học cổ truyền", aliases: ["y học cổ truyền"] },
   { label: "Kỹ thuật pha chế đồ uống", aliases: ["kỹ thuật pha chế đồ uống"] },
   { label: "Kỹ thuật vật lý trị liệu và PHCN", aliases: ["kỹ thuật vật lý trị liệu và phcn"] },
+  { label: "Quản trị dịch vụ du lịch và lữ hành", aliases: ["quản trị dịch vụ du lịch và lữ hành"] },
+  { label: "Công nghệ kỹ thuật Điều khiển và Tự động hoá", aliases: ["công nghệ kỹ thuật điều khiển và tự động hoá", "công nghệ kỹ thuật điều khiển và tự động hóa"] },
   { label: "Quản lý nhà nước", aliases: ["quản lý nhà nước"] }
 ];
 
