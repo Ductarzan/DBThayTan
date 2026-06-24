@@ -81,6 +81,16 @@ const MAJOR_RULES = [
   { label: "Công nghệ kỹ thuật Điều khiển và Tự động hoá", aliases: ["công nghệ kỹ thuật điều khiển và tự động hoá", "công nghệ kỹ thuật điều khiển và tự động hóa"] },
   { label: "Quản lý nhà nước", aliases: ["quản lý nhà nước"] }
 ];
+const PRIORITY_MAJOR_MATCHES = [
+  {
+    label: "Quản trị dịch vụ du lịch và lữ hành",
+    aliases: ["quản trị dịch vụ du lịch và lữ hành", "du lịch và lữ hành"]
+  },
+  {
+    label: "Công nghệ kỹ thuật Điều khiển và Tự động hoá",
+    aliases: ["công nghệ kỹ thuật điều khiển và tự động hoá", "công nghệ kỹ thuật điều khiển và tự động hóa"]
+  }
+];
 
 let rawRows = [];
 let rowsBySource = { dongdo: [], bachnghe: [] };
@@ -404,6 +414,11 @@ function normalizeText(v) {
 function classifyMajor(rawMajor) {
   const n = normalizeText(rawMajor);
   if (!n) return "Chưa rõ ngành";
+  for (const rule of PRIORITY_MAJOR_MATCHES) {
+    for (const alias of rule.aliases) {
+      if (n.includes(normalizeText(alias))) return rule.label;
+    }
+  }
   for (const rule of MAJOR_RULES) {
     for (const alias of rule.aliases) {
       if (n.includes(normalizeText(alias))) return rule.label;
