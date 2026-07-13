@@ -405,6 +405,7 @@ function normalizeText(v) {
   return (v || "")
     .toLowerCase()
     .normalize("NFD")
+    .replace(/đ/g, "d")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
@@ -558,7 +559,9 @@ function renderTable(rows) {
 function isRegularProgram(v) {
   if (activeSource === "bachnghe") return true;
   const normalized = normalizeText(v);
-  return normalized.includes("dai hoc chinh quy");
+  return normalized.includes("dai hoc chinh quy") ||
+    normalized.includes("dh chinh quy") ||
+    normalized.includes("he chinh quy");
 }
 
 function renderMajorStatsTable(rows) {
